@@ -1,0 +1,15 @@
+name: compose-node-express-rest
+    
+services:
+  db:
+    container_name: postgres-db-container
+    image: postgres:latest
+    restart: on-failure:3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: deviceManagement_db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
