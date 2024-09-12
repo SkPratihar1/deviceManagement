@@ -14,14 +14,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'views')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Employee Management API');
+});
+
+
 app.use('/auth', authRoutes);
 
 app.use(bodyParser.json());
 
 app.use('/employees', employeeRoutes);
 
-
-// app.use('/employees', employeeRoutes);
 app.use('/devices', deviceRoutes);
 
 

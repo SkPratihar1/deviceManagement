@@ -10,15 +10,37 @@ const createEmployee = async (name, email, phone, team_id, status) => {
     return res.rows[0].id;
 };
 
-const updateEmployee = async (id, name, email, phone, team_id, status) => {
+// const updateEmployee = async (id, name, email, phone, team_id, status) => {
+//     const query = `
+//         UPDATE employees
+//         SET name = $1, email = $2, phone = $3, team_id = $4, status = $5
+//         WHERE id = $6;
+//     `;
+//     const values = [name, email, phone, team_id, status, id];
+//     await pool.query(query, values);
+// };
+
+
+const checkDuplicateEmployee = async (email, phone, id) => {
     const query = `
-        UPDATE employees
-        SET name = $1, email = $2, phone = $3, team_id = $4, status = $5
-        WHERE id = $6;
+      SELECT * FROM employees 
+      WHERE (email = $1 OR phone = $2) 
+      AND id != $3
+    `;
+    const values = [email, phone, id];
+    const { rows } = await pool.query(query, values);
+    return rows.length > 0;
+  };
+  
+  const updateEmployee = async (id, name, email, phone, team_id, status) => {
+    const query = `
+      UPDATE employees
+      SET name = $1, email = $2, phone = $3, team_id = $4, status = $5
+      WHERE id = $6;
     `;
     const values = [name, email, phone, team_id, status, id];
     await pool.query(query, values);
-};
+  };
 
 const deleteEmployee = async (id) => {
     const query = 'DELETE FROM employees WHERE id = $1;';
@@ -42,5 +64,6 @@ module.exports = {
     updateEmployee,
     deleteEmployee,
     getEmployeeById,
-    getAllEmployees
+    getAllEmployees,
+    checkDuplicateEmployee
 };
