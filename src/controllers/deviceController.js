@@ -1,6 +1,8 @@
 
 const deviceModel = require('../models/deviceModel');
-
+const { assignDeviceSchema } =  require('../schemas/assignDeviceSchema');
+//import { z } from 'zod';
+const {z} =require ('zod')
 const addDevice = async (req, res) => {
     try {
         const { name, type, serial_number } = req.body;
@@ -52,22 +54,96 @@ const getAllDevices = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
 const assignDevice = async (req, res) => {
-    const { employee_id, device_id } = req.body;
-  
-    // Validate input to ensure employee_id and device_id are integers
-    if (!Number.isInteger(Number(employee_id)) || !Number.isInteger(Number(device_id))) {
-      return res.status(400).json({ error: 'Invalid input: employee_id and device_id must be integers' });
-    }
-  
     try {
-      // Use the model function to assign the device and track history
-      await deviceModel.assignDevice(employee_id, device_id);
-      res.json({ message: 'Device assigned and history updated' });
+      const parsedData = assignDeviceSchema.parse(req.body); // Ensure `assignDeviceSchema` is correctly imported
+  
+      // Check device status
+      const deviceStatus = await deviceModel.getDeviceStatus(parsedData.device_id);
+  
+      if (deviceStatus && deviceStatus.assigned_to) {
+        return res.status(400).json({ error: 'Device is already assigned to another employee' });
+      }
+  
+      // Assign the device
+      await deviceModel.assignDevice(parsedData.employee_id, parsedData.device_id);
+  
+      res.json({ message: 'Device assigned and status updated' });
     } catch (error) {
+      console.error('Error in assignDevice:', error); // Detailed error logging
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       res.status(500).json({ error: 'Error assigning device' });
     }
   };
+
+
+
+// const assignDevice = async (req, res) => {
+//     try {
+//       const parsedData = assignDeviceSchema.parse(req.body);
+  
+//       // Check current status of the device
+//       const deviceStatus = await deviceModel.getDeviceStatus(parsedData.device_id);
+  
+//       // If the device is already assigned to an employee and action is not a return, prevent reassignment
+//       if (deviceStatus && deviceStatus.assigned_to) {
+//         if (parsedData.action !== 'return') {
+//           return res.status(400).json({ 
+//             error: `Device is already assigned to employee ${deviceStatus.assigned_to}. Return it before reassigning.` 
+//           });
+//         }
+  
+//         // If action is a return, log the return and unassign the device
+//         await deviceModel.updateDeviceHistory({
+//           device_id: parsedData.device_id,
+//           employee_id: deviceStatus.assigned_to, // Log return for current employee
+//           action: 'returned',
+//           details: `Device returned by employee ${deviceStatus.assigned_to}`
+//         });
+  
+//         // Update device as unassigned
+//         await deviceModel.unassignDevice(parsedData.device_id);
+//         return res.json({ message: 'Device returned and unassigned' });
+//       }
+  
+//       // Check if device is going for repair or maintenance
+//       if (parsedData.action === 'repair') {
+//         await deviceModel.updateDeviceHistory({
+//           device_id: parsedData.device_id,
+//           employee_id: null, // No employee during repair
+//           action: 'repair',
+//           details: `Device sent for repair or maintenance`
+//         });
+  
+//         return res.json({ message: 'Device sent for repair or maintenance' });
+//       }
+  
+//       // If not in repair, assign the device to the new employee
+//       await deviceModel.assignDevice(parsedData.employee_id, parsedData.device_id);
+  
+//       // Log assignment action in device history
+//       await deviceModel.updateDeviceHistory({
+//         device_id: parsedData.device_id,
+//         employee_id: parsedData.employee_id,
+//         action: 'assigned',
+//         details: `Device assigned to employee ${parsedData.employee_id}`
+//       });
+  
+//       res.json({ message: 'Device assigned and status updated' });
+//     } catch (error) {
+//       console.error('Error in assignDevice:', error);
+//       if (error instanceof z.ZodError) {
+//         return res.status(400).json({ error: error.errors });
+//       }
+//       res.status(500).json({ error: 'Error updating device' });
+//     }
+//   };
+  
+  
 
 module.exports = {
     addDevice,

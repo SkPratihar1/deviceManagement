@@ -1,6 +1,7 @@
 
 const pool = require('../config/db');
 
+
 // Function to add a new device
 const addDevice = async (name, type, serial_number) => {
     const query = `
@@ -34,25 +35,83 @@ const getAllDevices = async () => {
     const res = await pool.query(query);
     return res.rows;
 };
-const assignDevice = async (employee_id, device_id) => {
-    // Update device with employee ID
-    const updateDeviceQuery = `
-      UPDATE devices SET employee_id = $1 WHERE id = $2
+const getDeviceStatus = async (device_id) => {
+    const query = `
+      SELECT assigned_to 
+      FROM devices 
+      WHERE id = $1;
     `;
-    await pool.query(updateDeviceQuery, [employee_id, device_id]);
+    const values = [device_id];
+    const result = await pool.query(query, values);
   
-    // Insert into device history
-    const insertHistoryQuery = `
-      INSERT INTO device_history (device_id, employee_id) VALUES ($1, $2)
-    `;
-    await pool.query(insertHistoryQuery, [device_id, employee_id]);
+    return result.rows[0]; 
   };
+
+//   const updateDeviceHistory = async ({ device_id, employee_id, action, details }) => {
+//     const query = `
+//       INSERT INTO device_history (device_id, employee_id, action, details, timestamp)
+//       VALUES ($1, $2, $3, $4, NOW())`;
+//     const values = [device_id, employee_id || null, action, details];
+//     await pool.query(query, values);
+//   };
+  
+//   const assignDevice = async (employee_id, device_id) => {
+//     const query = `
+//       UPDATE devices
+//       SET assigned_to = $1, assigned_date = NOW()
+//       WHERE id = $2`;
+//     const values = [employee_id, device_id];
+//     await pool.query(query, values);
+//   };
+  
+//   const unassignDevice = async (device_id) => {
+//     const query = `
+//       UPDATE devices
+//       SET assigned_to = NULL, assigned_date = NULL
+//       WHERE id = $1`;
+//     const values = [device_id];
+//     await pool.query(query, values);
+//   };
+  
+
+  
+  
+  const assignDevice = async (employee_id, device_id) => {
+    const query = `
+      UPDATE devices 
+      SET assigned_to = $1, status = 'Assigned', assigned_date = NOW()
+      WHERE id = $2;
+    `;
+    const values = [employee_id, device_id];
+    await pool.query(query, values);
+  
+    // Track assignment in a history table
+    const historyQuery = `
+      INSERT INTO device_history (employee_id, device_id, assigned_date)
+      VALUES ($1, $2, NOW());
+    `;
+    await pool.query(historyQuery, [employee_id, device_id]);
+  };
+  
+//   const returnDevice = async (device_id) => {
+//     const query = `
+//       UPDATE devices 
+//       SET assigned_to = NULL, status = 'Free', returned_date = NOW()
+//       WHERE id = $1;
+//     `;
+//     await pool.query(query, [device_id]);
+//   };
 module.exports = {
     addDevice,
     updateDevice,
     getDeviceById,
     getAllDevices,
-    assignDevice
+    assignDevice,
+    getDeviceStatus,
+    // updateDeviceHistory,
+    // unassignDevice 
+    // returnDevice
+    
     
 };
 
