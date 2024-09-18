@@ -4,6 +4,7 @@ const authRoutes = require('./routes/authRoutes');
 const bodyParser = require('body-parser');
 const employeeRoutes = require('./routes/employeeRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
+const departmentRoutes = require('./routes/departmentRoutes')
 
 
 const cors = require('cors')
@@ -25,7 +26,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRoutes);
 
 app.use(bodyParser.json());
-
+app.use('/departments',departmentRoutes)
 app.use('/employees', employeeRoutes);
 
 app.use('/devices', deviceRoutes);

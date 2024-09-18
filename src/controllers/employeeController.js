@@ -3,8 +3,8 @@ const employeeModel = require('../models/employeeModel');
 
 const createEmployee = async (req, res) => {
     try {
-        const { name, email, phone, team_id, status } = req.body;
-        const newEmployeeId = await employeeModel.createEmployee(name, email, phone, team_id, status);
+        const { name, email, phone, department_id, status } = req.body;
+        const newEmployeeId = await employeeModel.createEmployee(name, email, phone, department_id, status);
         res.status(201).json({
             message: 'Employee created successfully',
             id: newEmployeeId
@@ -39,7 +39,7 @@ const updateEmployee = async (req, res) => {
       }
   
       
-      await employeeModel.updateEmployee(id, updateData.name, email, phone, updateData.team_id, updateData.status);
+      await employeeModel.updateEmployee(id, updateData.name, email, phone, updateData.department_id, updateData.status);
   
       res.status(200).json({
         message: 'Employee updated successfully',
