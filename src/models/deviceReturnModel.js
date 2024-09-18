@@ -39,12 +39,24 @@ const getDeviceStatus = async (device_id) => {
   const result = await pool.query(query, [device_id]);
   return result.rows[0];
 };
+
+const getLastHistoryEntry = async (device_id) => {
+  const query = `
+    SELECT action FROM device_history
+    WHERE device_id = $1
+    ORDER BY assigned_date DESC
+    LIMIT 1;
+  `;
+  const result = await pool.query(query, [device_id]);
+  return result.rows[0];
+};
 module.exports = {
    
     unassignDevice,
     updateDeviceHistory,
     updateDeviceStatus,
     getDeviceStatus,
+    getLastHistoryEntry
 
     
     

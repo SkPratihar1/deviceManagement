@@ -1,6 +1,5 @@
-
+//const pool = require('../config/db');
 const pool = require('../config/db');
-
 
 // Function to add a new device
 const addDevice = async (name, type, serial_number) => {
@@ -47,35 +46,18 @@ const getDeviceStatus = async (device_id) => {
     return result.rows[0]; 
   };
 
-//   const updateDeviceHistory = async ({ device_id, employee_id, action, details }) => {
-//     const query = `
-//       INSERT INTO device_history (device_id, employee_id, action, details, timestamp)
-//       VALUES ($1, $2, $3, $4, NOW())`;
-//     const values = [device_id, employee_id || null, action, details];
-//     await pool.query(query, values);
-//   };
-  
-//   const assignDevice = async (employee_id, device_id) => {
-//     const query = `
-//       UPDATE devices
-//       SET assigned_to = $1, assigned_date = NOW()
-//       WHERE id = $2`;
-//     const values = [employee_id, device_id];
-//     await pool.query(query, values);
-//   };
-  
-//   const unassignDevice = async (device_id) => {
-//     const query = `
-//       UPDATE devices
-//       SET assigned_to = NULL, assigned_date = NULL
-//       WHERE id = $1`;
-//     const values = [device_id];
-//     await pool.query(query, values);
-//   };
-  
+
+
+  const getDeviceBySerial = async (serial_number) => {
+    // Query to check if a device with the given serial number exists
+    const query = `SELECT * FROM devices WHERE serial_number = $1`;
+    const values = [serial_number];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  };
 
   
-  
+
   const assignDevice = async (employee_id, device_id) => {
     const query = `
       UPDATE devices 
@@ -84,54 +66,46 @@ const getDeviceStatus = async (device_id) => {
     `;
     const values = [employee_id, device_id];
     await pool.query(query, values);
-  
-    // Track assignment in a history table
-    const historyQuery = `
-      INSERT INTO device_history (employee_id, device_id, assigned_date)
-      VALUES ($1, $2, NOW());
-    `;
-    await pool.query(historyQuery, [employee_id, device_id]);
   };
   
-//   const returnDevice = async (device_id) => {
-//     const query = `
-//       UPDATE devices 
-//       SET assigned_to = NULL, status = 'Free', returned_date = NOW()
-//       WHERE id = $1;
-//     `;
-//     await pool.query(query, [device_id]);
-//   };
+  // Add a new function for inserting into device history
+  const historyQuery = async ({ employee_id, device_id, action, details }) => {
+    const historyQuery = `
+      INSERT INTO device_history (employee_id, device_id, action, details, assigned_date)
+      VALUES ($1, $2, $3, $4, NOW());
+    `;
+    const historyValues = [employee_id, device_id, action, details];
+    await pool.query(historyQuery, historyValues);
+  };
+  
+
+
+  const getDeviceHistory = async (device_id) => {
+    const query = `
+      SELECT dh.device_id, dh.action, dh.details, dh.assigned_date, 
+             e.id as employee_id, e.name as employee_name, e.team_id,
+             d.name as device_name
+      FROM device_history dh
+      JOIN employees e ON dh.employee_id = e.id
+      JOIN devices d ON dh.device_id = d.id
+      WHERE dh.device_id = $1
+      ORDER BY dh.assigned_date DESC;
+    `;
+    const result = await pool.query(query, [device_id]);
+    return result.rows;
+  };
+  
+
 module.exports = {
     addDevice,
     updateDevice,
     getDeviceById,
     getAllDevices,
     assignDevice,
+    historyQuery,
     getDeviceStatus,
-    // updateDeviceHistory,
-    // unassignDevice 
-    // returnDevice
-    
+    getDeviceBySerial,
+    getDeviceHistory
+   
     
 };
-
-
-// module.exports = {
-//     addDevice,
-//     updateDevice ,
-//     // deleteEmployee,
-//     // getEmployeeById,
-//     // getAllEmployees
-// };
-
-// const getEmployeeById = async (id) => {
-//     const query = 'SELECT * FROM employees WHERE id = $1;';
-//     const res = await pool.query(query, [id]);
-//     return res.rows[0];
-// };
-
-// const getAllEmployees = async () => {
-//     const query = 'SELECT * FROM employees;';
-//     const res = await pool.query(query);
-//     return res.rows;
-// };

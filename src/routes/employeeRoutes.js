@@ -10,7 +10,7 @@ router.post('/', authorize,validateEmployee,checkDuplicateEmployee,employeeContr
 router.put('/:id', authorize,employeeController.updateEmployee);
 router.delete('/:id', authorize,employeeController.deleteEmployee);
 router.get('/:id', authorize,employeeController.getEmployeeById);
-router.get('/', authorize,employeeController.getAllEmployees);
+router.get('/', employeeController.getAllEmployees);
 
 module.exports = router;
 //,validateEmployee,checkDuplicateEmployee
