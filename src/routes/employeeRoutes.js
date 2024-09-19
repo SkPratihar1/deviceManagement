@@ -1,16 +1,17 @@
 
+
 const express = require('express');
 const router = express.Router();
 const employeeController = require('../controllers/employeeController');
-const { authorize } = require('../middleware/auth');
-const { validateEmployee } = require('../middleware/validateEmployee');
-const { checkDuplicateEmployee } = require('../middleware/checkDuplicateMiddleware');
+const authorize = require('../middleware/auth');
 
-router.post('/', authorize,validateEmployee,checkDuplicateEmployee,employeeController.createEmployee);
-router.put('/:id', authorize,employeeController.updateEmployee);
-router.delete('/:id', authorize,employeeController.deleteEmployee);
-router.get('/:id', authorize,employeeController.getEmployeeById);
-router.get('/', employeeController.getAllEmployees);
+// Define routes
+router.post('/create', authorize, employeeController.createEmployee);
+router.put('/update/:id', authorize, employeeController.updateEmployee);
+router.delete('/delete/:id', authorize, employeeController.deleteEmployee);
+router.get('/search', authorize, employeeController.searchEmployees);
+router.get('/:id', authorize, employeeController.getEmployeeById);
+//router.get('/', authorize, employeeController.getAllEmployees);
+router.get('/', authorize, employeeController.getEmployeesFromDB);
 
 module.exports = router;
-//,validateEmployee,checkDuplicateEmployee

@@ -1,6 +1,6 @@
 const deviceModel = require('../models/deviceModel');
 const { assignDeviceSchema } = require('../schemas/assignDeviceSchema');
-const { deviceSchema } =  require('../schemas/deviceSchema');
+const { deviceSchema, searchSchema} =  require('../schemas/deviceSchema');
 const { z } = require('zod');
 
 
@@ -71,6 +71,27 @@ const getAllDevices = async (req, res) => {
     res.status(200).json(devices);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+const searchDevices = async (req, res) => {
+  try {
+      // Validate the query parameter using Zod
+      const { searchTerm } = searchSchema.parse(req.query);
+
+      // Search for devices in the model
+      const devices = await deviceModel.searchDevices(searchTerm);
+
+      // Respond with the search results
+      res.status(200).json({
+          message: 'Devices retrieved successfully',
+          devices
+      });
+  } catch (error) {
+      if (error instanceof z.ZodError) {
+          return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: error.message });
   }
 };
 
@@ -287,6 +308,7 @@ module.exports = {
     getDeviceById,
     getAllDevices,
     assignDevice,
-    getDeviceHistory
+    getDeviceHistory,
+    searchDevices
    
 };

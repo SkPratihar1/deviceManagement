@@ -94,7 +94,16 @@ const getDeviceStatus = async (device_id) => {
     const result = await pool.query(query, [device_id]);
     return result.rows;
   };
-  
+  const searchDevices = async (searchTerm) => {
+    const query = `
+        SELECT * FROM devices
+        WHERE name ILIKE $1 OR type ILIKE $1 OR serial_number ILIKE $1;
+    `;
+    const values = [`%${searchTerm}%`]; // Safely parameterized query
+    const res = await pool.query(query, values);
+    return res.rows;
+};
+
 
 module.exports = {
     addDevice,
@@ -105,7 +114,8 @@ module.exports = {
     historyQuery,
     getDeviceStatus,
     getDeviceBySerial,
-    getDeviceHistory
+    getDeviceHistory,
+    searchDevices
    
     
 };
