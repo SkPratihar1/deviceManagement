@@ -1,10 +1,9 @@
 //import { z } from 'zod';
 const {z} =require ('zod')
 
- const assignDeviceSchema = z.object({
-  employee_id: z.number().int().positive(), // Ensures employee_id is a positive integer
-  device_id: z.number().int().positive(),   // Ensures device_id is a positive integer
-})
-
+const assignDeviceSchema = z.object({
+  employee_id: z.string().uuid(), // Ensures employee_id is a valid UUID
+  device_id: z.string().uuid(),   // Ensures device_id is a valid UUID
+});
 
 module.exports = { assignDeviceSchema };

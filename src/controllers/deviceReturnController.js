@@ -70,7 +70,7 @@ const returnDevice = async (req, res) => {
       return res.status(404).json({ error: 'Device not found' });
     }
 
-    if (!deviceStatus.assigned_to) {
+    if (!deviceStatus.employee_id) {
       return res.status(400).json({ error: 'Device is not currently assigned' });
     }
 
@@ -87,9 +87,9 @@ const returnDevice = async (req, res) => {
     // Log return action in device history if not duplicate
     await deviceReturnModel.updateDeviceHistory({
       device_id: parsedData.device_id,
-      employee_id: deviceStatus.assigned_to,
+      employee_id: deviceStatus.employee_id,
       action: newStatus,
-      details: `Device returned by employee ${deviceStatus.assigned_to}`
+      details: `Device returned by employee ${deviceStatus.employee_id}`
     });
 
     // Update device status and unassign it

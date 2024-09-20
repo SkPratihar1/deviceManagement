@@ -61,7 +61,7 @@ const getDeviceStatus = async (device_id) => {
   const assignDevice = async (employee_id, device_id) => {
     const query = `
       UPDATE devices 
-      SET assigned_to = $1, status = 'Assigned', assigned_date = NOW()
+      SET employee_id = $1, status = 'Assigned', assigned_date = NOW()
       WHERE id = $2;
     `;
     const values = [employee_id, device_id];
