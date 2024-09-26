@@ -1,15 +1,38 @@
 const pool = require('../config/db');
 
+// const createEmployee = async (name, email, phone, department_id, status) => {
+//     const query = `
+//         INSERT INTO public.employees (name, email, phone, department_id, status)
+//         VALUES ($1, $2, $3, $4, $5) RETURNING id;
+//     `;
+//     const values = [name, email, phone, department_id, status];
+//     console.log('Executing query:', query, 'with values:', values);
+//     const res = await pool.query(query, values);
+   
+//     console.log('Current database:', res.rows[0]);   
+//     return res.rows[0].id;
+// };
 const createEmployee = async (name, email, phone, department_id, status) => {
-    const query = `
-        INSERT INTO employees (name, email, phone, department_id, status)
-        VALUES ($1, $2, $3, $4, $5) RETURNING id;
-    `;
-    const values = [name, email, phone, department_id, status];
-    const res = await pool.query(query, values);
-    return res.rows[0].id;
+  const query = `
+      INSERT INTO employees (name, email, phone, department_id, status)
+      VALUES ($1, $2, $3, $4, $5) RETURNING id;
+  `;
+  const values = [name, email, phone, department_id, status];
+  
+  
+  const client = await pool.connect(); // Use a new client for this query
+  console.log("client",client)
+  try {
+      const res = await client.query(query, values);
+      console.log('Inserted employee ID:', res.rows[0].id);
+      return res.rows[0].id;
+  } catch (error) {
+      console.error('Error executing query:', error);
+      throw error; // Re-throw the error to be caught in the seed function
+  } finally {
+      client.release(); // Release the client back to the pool
+  }
 };
-
 // const updateEmployee = async (id, name, email, phone, team_id, status) => {
 //     const query = `
 //         UPDATE employees

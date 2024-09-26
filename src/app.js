@@ -41,11 +41,12 @@
 
 
 
-
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+require('dotenv').config();
+
 
 // Import routes
 const authRoutes = require('./routes/authRoutes'); 
@@ -64,6 +65,8 @@ app.use(bodyParser.json());
 app.use('/departments', departmentRoutes);
 app.use('/employees', employeeRoutes);
 app.use('/devices', deviceRoutes);
+
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

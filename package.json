@@ -5,12 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",
+    "db:seed":"nodemon src/seed.js",
+
     "dev": "nodemon --watch src --verbose src/app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^9.0.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
