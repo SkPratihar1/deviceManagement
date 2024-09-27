@@ -13,3 +13,34 @@ services:
       - 5432:5432
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  
+  app:
+    container_name: deviceManagement_container
+    image: app:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: deviceManagement_db
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+    volumes:
+      - .:/usr/src/app
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    driver: bridge

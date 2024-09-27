@@ -21,7 +21,7 @@ const createEmployee = async (name, email, phone, department_id, status) => {
   
   
   const client = await pool.connect(); // Use a new client for this query
-  console.log("client",client)
+  
   try {
       const res = await client.query(query, values);
       console.log('Inserted employee ID:', res.rows[0].id);
